@@ -1,4 +1,4 @@
-name: Build and Deploy to Sandbox
+name: Build and Deploy to CloudHub 2.0 DEV
 
 on:
   push:
@@ -32,14 +32,15 @@ jobs:
           java-version: 8
 
       - name: Build with Maven
-        run: mvn -B package --file pom.xml
+        run: mvn -B clean package --file pom.xml -DskipTests
 
       - name: Rename artifact with Git commit hash
         run: |
-	  artifactName1=$(ls target/*.jar | head -1)
+          artifactName1=$(ls target/*.jar | head -1)
           commitHash=$(git rev-parse --short "$GITHUB_SHA")
-          artifactName2=$(ls target/*.jar | head -1 | sed "s/.jar/-$commitHash.jar/g")
-          mv $artifactName1 $artifactName2
+          artifactBaseName=$(basename "$artifactName1" .jar)
+          artifactName2="${artifactBaseName}-${commitHash}.jar"
+          mv "$artifactName1" "target/$artifactName2"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
@@ -63,17 +64,17 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v3
         with:
-          name: artifacts
+          name: mule-artifact
 
       - name: Deploy to CloudHub 2.0 DEV
         env:
           CLIENT_ID: ${{ secrets.ANYPOINT_CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.ANYPOINT_CLIENT_SECRET }}
-          ENV: DEV
-          VCORES: 0.1
+          ENV: ${{ secrets.DEV_ENV }}
+          VCORES: ${{ secrets.DEV_VCORES }}
           TARGET: ${{ secrets.DEV_TARGET }}
-          MULE_ENV: DEV
-          REPLICAS: 1
+          MULE_ENV: ${{ secrets.DEV_MULE_ENV }}
+          REPLICAS: ${{ secrets.DEV_REPLICAS }}
           SECRET_KEY: ${{ secrets.DEV_SECRET_KEY }}
         run: |
           artifactName=$(ls *.jar | head -1)
