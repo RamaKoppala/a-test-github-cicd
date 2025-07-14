@@ -39,10 +39,10 @@
 						<connectedAppClientSecret>${connectedAppClientSecret}</connectedAppClientSecret>
 						<environment>${environment}</environment>
 						<target>${target}</target>
-						<muleVersion>4.9.0</muleVersion>
+						<muleVersion>${app.runtime}</muleVersion>
 						<applicationName>rama-test-github-api</applicationName>
-						<replicas>1</replicas>
-						<vCores>0.1</vCores>
+						<replicas>${replicas}</replicas>
+						<vCores>${vCores}</vCores>
 						<connectedAppGrantType>client_credentials</connectedAppGrantType>
 						<deploymentSettings>
 							<generateDefaultPublicUrl>true</generateDefaultPublicUrl>
@@ -50,9 +50,6 @@
 						<properties>
 							<anypoint.platform.client_id>${anypoint.platform.client_id}</anypoint.platform.client_id>
 							<anypoint.platform.client_secret>${anypoint.platform.client_secret}</anypoint.platform.client_secret>
-							<connectedAppClientId>${connectedAppClientId}</connectedAppClientId>
-						        <connectedAppClientSecret>${connectedAppClientSecret}</connectedAppClientSecret>
-							
 							<mule.env>${mule.env}</mule.env>
 						</properties>
 						<secureProperties>
