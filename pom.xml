@@ -38,7 +38,7 @@
 						<connectedAppClientId>d7de564b36aa4ed382ac529d8404bfc7</connectedAppClientId>
 						<connectedAppClientSecret>fb56b6A295F34C7292CF2701C5A8f7A8</connectedAppClientSecret>
 						<environment>DEV</environment>
-						<target>Cloudhub-US-East-2</target>
+						<target>CloudHub-2-US-East-2</target>
 						<muleVersion>4.9.0</muleVersion>
 						<applicationName>rama-test-github-api</applicationName>
 						<replicas>1</replicas>
