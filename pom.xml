@@ -48,6 +48,11 @@
 							<generateDefaultPublicUrl>true</generateDefaultPublicUrl>
 						</deploymentSettings>
 						<properties>
+							<anypoint.platform.client_id>e64b5796a64745e48d513b71fc702899</anypoint.platform.client_id>
+							<anypoint.platform.client_secret>e51Aef90909c4C0c85D9897a16A6D2D9</anypoint.platform.client_secret>
+							<connectedAppClientId>d7de564b36aa4ed382ac529d8404bfc7</connectedAppClientId>
+							<connectedAppClientSecret>fb56b6A295F34C7292CF2701C5A8f7A8</connectedAppClientSecret>
+							
 							<mule.env>DEV</mule.env>
 						</properties>
 						<secureProperties>
