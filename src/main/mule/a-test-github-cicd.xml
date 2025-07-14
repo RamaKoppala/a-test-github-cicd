@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="a723df77-9ca3-4105-bcd3-39f9ca266a58" >
+		<http:listener-connection host="${http.host}" port="${http.port}" />
+	</http:listener-config>
+		<secure-properties:config
+		name="Secure_Properties_Config"
+		doc:name="Environment-specific Secure Properties Config"
+		doc:id="a34ac990-482f-4bb8-90ae-d4e8aaf2e525"
+		file="config/config-secured-${mule.env}.yaml"
+		key="${mule.key}" />
+		
+	<global-property doc:name="default mule.env"
+		doc:id="e9658a4b-51d7-452a-8102-1a90cb9508f2" name="mule.env"
+		value="local" />
+
+	<global-property doc:name="default mule.encryption.key"
+		doc:id="ef245e09-8675-42fd-90a0-46a90bb95eb3"
+		name="mule.key" value="Barry@5Wehmiller" />
+
+	<configuration-properties
+		doc:name="Application Configuration properties"
+		doc:id="e9fec3d7-8191-4acb-a610-c931544b3d89"
+		file="config/config-${mule.env}.yaml" />
+
+	<configuration-properties
+		doc:name="Common Configuration properties"
+		doc:id="95ae41a7-141e-4004-bbba-95aa6bf8c51f"
+		file="config/config-common.yaml" />
+	<flow name="alog-testFlow" doc:id="2f93cd05-6501-4a9c-a6b1-45149f0e9638" >
+		<http:listener doc:name="Listener" doc:id="514c98f2-e176-449b-afaf-9b7736298133" config-ref="HTTP_Listener_config" path="${url.path}" />
+		<logger level="ERROR" doc:name="Logger" doc:id="9297736b-6ef7-44bd-a3ac-8eae8b822013" message="test error" />
+		<logger level="DEBUG" doc:name="Logger1" doc:id="2c29c859-2665-4fe6-9a90-c67738d29614" message="test debug" />
+		<logger level="TRACE" doc:name="Logger2" doc:id="e4c1bb2a-5c9e-48fd-acc0-3f900d512fc1" message="test trace" />
+		<ee:transform doc:name="Transform Message" doc:id="20fc63cf-642d-4060-8afc-5f877de2e498" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message": "test: " ++ Mule::p('http.port')
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="WARN" doc:name="Logger3" doc:id="76152454-c840-4a84-8a0f-37541417c808" message="test warn  #[Mule::p('secure.encrypted.property')]" />
+	</flow>
+</mule>

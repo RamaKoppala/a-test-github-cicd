@@ -1,0 +1,128 @@
+name: MuleSoft CI/CD Deployment
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+  pull_request:
+    branches:
+	  - develop
+	  - main
+
+env:
+  MAVEN_OPTS: >-
+    -Dpipeline_uid=${{ github.run_id }}
+    -DconnectedAppClientId=${{ secrets.CONNECTED_APPS_CLIENT_ID }}
+    -DconnectedAppClientSecret=${{ secrets.CONNECTED_APPS_CLIENT_SECRET }}
+    -Dprovider=${{ secrets.PROVIDER }}
+    -Dmaven.repo.local=.m2/repository
+
+jobs:
+  publish-to-exchange-dev:
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    container:
+      image: maven:3.8.2-jdk-8
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Publish to Exchange (DEV)
+        run: |
+          echo "Publish To Exchange To Dev"
+          mvn clean deploy $MAVEN_OPTS -e -s settings.xml \
+            -Denvironment=${{ secrets.ENVIRONMENT_DEV }} -DskipTests
+
+  deploy-to-cloudhub-dev:
+    if: github.ref == 'refs/heads/develop'
+    needs: publish-to-exchange-dev
+    runs-on: ubuntu-latest
+    container:
+      image: maven:3.8.2-jdk-8
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+
+      - name: Deploy to CloudHub 2.0 (DEV)
+        run: |
+          echo "Deploy To Cloudhub 2.0 Starts For Dev"
+          mvn deploy -e -s settings.xml $MAVEN_OPTS \
+            -DskipMunitTests -DmuleDeploy \
+            -Denvironment=${{ secrets.ENVIRONMENT_DEV }} \
+            -DvCores=${{ secrets.DEV_VCORES }} \
+            -Dtarget=${{ secrets.DEV_TARGET }} \
+            -Dmule.env=${{ secrets.ENV_DEV }} \
+            -Dreplicas=${{ secrets.DEV_REPLICAS }} \
+            -Danypoint.platform.client_id=${{ secrets.DEV_ANYPOINT_PLATFORM_CLIENT_ID }} \
+            -Danypoint.platform.client_secret=${{ secrets.DEV_ANYPOINT_PLATFORM_CLIENT_SECRET }} \
+            -Dmule.key=${{ secrets.DEV_SECRET_KEY }} \
+            -DskipTests
+
+  publish-to-exchange-prod:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    container:
+      image: maven:3.8.2-jdk-8
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Publish to Exchange (PROD)
+        run: |
+          echo "Publish To Exchange To Prod"
+          mvn clean deploy $MAVEN_OPTS -e -s settings.xml \
+            -Denvironment=${{ secrets.ENVIRONMENT_PROD }} -DskipTests
+
+  deploy-to-cloudhub-prod:
+    if: github.ref == 'refs/heads/main'
+    needs: publish-to-exchange-prod
+    runs-on: ubuntu-latest
+    container:
+      image: maven:3.8.2-jdk-8
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+
+      - name: Deploy to CloudHub 2.0 (PROD)
+        run: |
+          echo "Deploy To Cloudhub 2.0 Starts For Prod"
+          mvn deploy -e -s settings.xml $MAVEN_OPTS \
+            -DskipMunitTests -DmuleDeploy \
+            -Denvironment=${{ secrets.ENVIRONMENT_PROD }} \
+            -DvCores=${{ secrets.PROD_VCORES }} \
+            -Dtarget=${{ secrets.PROD_TARGET }} \
+            -Dmule.env=${{ secrets.ENV_PROD }} \
+            -Dreplicas=${{ secrets.PROD_REPLICAS }} \
+            -Danypoint.platform.client_id=${{ secrets.PROD_ANYPOINT_PLATFORM_CLIENT_ID }} \
+            -Danypoint.platform.client_secret=${{ secrets.PROD_ANYPOINT_PLATFORM_CLIENT_SECRET }} \
+            -Dmule.key=${{ secrets.PROD_SECRET_KEY }} \
+            -DskipTests
