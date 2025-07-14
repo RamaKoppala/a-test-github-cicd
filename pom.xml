@@ -33,25 +33,25 @@
 				<extensions>true</extensions>
 				<configuration>
 					<cloudhub2Deployment>
-						<provider>${provider}</provider>
+						<provider>MC</provider>
 						<businessGroupId>${project.groupId}</businessGroupId>
-						<connectedAppClientId>${connectedAppClientId}</connectedAppClientId>
-						<connectedAppClientSecret>${connectedAppClientSecret}</connectedAppClientSecret>
-						<environment>${environment}</environment>
-						<target>${target}</target>
-						<muleVersion>${app.runtime}</muleVersion>
-						<applicationName>${project.name}-${mule.env}</applicationName>
-						<replicas>${replicas}</replicas>
-						<vCores>${vCores}</vCores>
+						<connectedAppClientId>d7de564b36aa4ed382ac529d8404bfc7</connectedAppClientId>
+						<connectedAppClientSecret>fb56b6A295F34C7292CF2701C5A8f7A8</connectedAppClientSecret>
+						<environment>DEV</environment>
+						<target>Cloudhub-US-East-2</target>
+						<muleVersion>4.9.0</muleVersion>
+						<applicationName>rama-test-github-api</applicationName>
+						<replicas>1</replicas>
+						<vCores>0.1</vCores>
 						<connectedAppGrantType>client_credentials</connectedAppGrantType>
 						<deploymentSettings>
 							<generateDefaultPublicUrl>true</generateDefaultPublicUrl>
 						</deploymentSettings>
 						<properties>
-							<mule.env>${mule.env}</mule.env>
+							<mule.env>DEV</mule.env>
 						</properties>
 						<secureProperties>
-							<mule.key>${mule.key}</mule.key>
+							<mule.key>MuleSoft12345678</mule.key>
 						</secureProperties>
 						<integrations>
 							<services>
