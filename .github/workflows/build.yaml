@@ -91,7 +91,7 @@ jobs:
             -Dreplicas="$REPLICAS" \
             -Danypoint.platform.client_id="$CLIENT_ID" \
             -Danypoint.platform.client_secret="$CLIENT_SECRET" \
-            -DconnectedAppClientId= "$CONNECTED_CLIENT_ID" \
-            -DconnectedAppClientSecret= "$CONNECTED_CLIENT_SECRET" \
+            -DconnectedAppClientId="$CONNECTED_CLIENT_ID" \
+            -DconnectedAppClientSecret="$CONNECTED_CLIENT_SECRET" \
             -Dmule.key="$SECRET_KEY" \
             -DskipTests
