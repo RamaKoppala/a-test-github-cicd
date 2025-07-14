@@ -15,7 +15,7 @@
         <pipeline_uid>0</pipeline_uid>
 		<deployment.version>1.0.${pipeline_uid}</deployment.version>
 
-		<app.runtime>4.9.0</app.runtime>
+		<app.runtime>4.9.7</app.runtime>
 		<mule.maven.plugin.version>4.3.0</mule.maven.plugin.version>
 	</properties>
 	
