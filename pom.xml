@@ -34,7 +34,7 @@
 				<configuration>
 					<cloudhub2Deployment>
 						<provider>MC</provider>
-						<businessGroupId>50d48d1b-ce01-49f2-8398-81b4f7b1f162</businessGroupId>
+						<businessGroupId>prowess-software-64</businessGroupId>
 						<connectedAppClientId>d7de564b36aa4ed382ac529d8404bfc7</connectedAppClientId>
 						<connectedAppClientSecret>fb56b6A295F34C7292CF2701C5A8f7A8</connectedAppClientSecret>
 						<environment>DEV</environment>
