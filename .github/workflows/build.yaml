@@ -68,14 +68,16 @@ jobs:
 
       - name: Deploy to CloudHub 2.0 DEV
         env:
-          CLIENT_ID: ${{ secrets.ANYPOINT_CLIENT_ID }}
-          CLIENT_SECRET: ${{ secrets.ANYPOINT_CLIENT_SECRET }}
-          ENV: ${{ secrets.DEV_ENV }}
-          VCORES: ${{ secrets.DEV_VCORES }}
-          TARGET: ${{ secrets.DEV_TARGET }}
-          MULE_ENV: ${{ secrets.DEV_MULE_ENV }}
-          REPLICAS: ${{ secrets.DEV_REPLICAS }}
-          SECRET_KEY: ${{ secrets.DEV_SECRET_KEY }}
+          CONNECTED_CLIENT_ID: ${{secrets.CONNECTED_APPS_CLIENT_ID}}
+          CONNECTED_CLIENT_SECRET: ${{secrets.CONNECTED_APPS_CLIENT_SECRET}}
+          CLIENT_ID: ${{secrets.DEV_CLIENT_ID}}
+          CLIENT_SECRET: ${{secrets.DEV_CLIENT_SECRET}}
+          ENV: ${{secrets.DEV_ENV}}
+          VCORES: ${{secrets.DEV_VCORES}}
+          TARGET: ${{secrets.DEV_TARGET}}
+          MULE_ENV: ${{secrets.DEV_MULE_ENV}}
+          REPLICAS: ${{secrets.DEV_REPLICAS}}
+          SECRET_KEY: ${{secrets.DEV_SECRET_KEY}}
         run: |
           artifactName=$(ls *.jar | head -1)
           echo "Deploying artifact: $artifactName"
@@ -89,5 +91,7 @@ jobs:
             -Dreplicas="$REPLICAS" \
             -Danypoint.platform.client_id="$CLIENT_ID" \
             -Danypoint.platform.client_secret="$CLIENT_SECRET" \
+            -DconnectedAppClientId= "$CONNECTED_CLIENT_ID" \
+            -DconnectedAppClientSecret= "$CONNECTED_CLIENT_SECRET" \
             -Dmule.key="$SECRET_KEY" \
             -DskipTests
