@@ -1,31 +1,20 @@
-name: MuleSoft CI/CD Deployment
+name: Build and Deploy to Sandbox
 
 on:
   push:
-    branches:
-      - develop
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-	  - develop
-	  - main
+    branches: [ main ]
 
 env:
   MAVEN_OPTS: >-
-    -Dpipeline_uid=${{ github.run_id }}
-    -DconnectedAppClientId=${{ secrets.CONNECTED_APPS_CLIENT_ID }}
-    -DconnectedAppClientSecret=${{ secrets.CONNECTED_APPS_CLIENT_SECRET }}
-    -Dprovider=${{ secrets.PROVIDER }}
     -Dmaven.repo.local=.m2/repository
 
 jobs:
-  publish-to-exchange-dev:
-    if: github.ref == 'refs/heads/develop'
+  build:
     runs-on: ubuntu-latest
-    container:
-      image: maven:3.8.2-jdk-8
     steps:
-      - name: Checkout Code
+      - name: Checkout this repo
         uses: actions/checkout@v3
 
       - name: Cache Maven dependencies
@@ -36,20 +25,33 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Publish to Exchange (DEV)
-        run: |
-          echo "Publish To Exchange To Dev"
-          mvn clean deploy $MAVEN_OPTS -e -s settings.xml \
-            -Denvironment=${{ secrets.ENVIRONMENT_DEV }} -DskipTests
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: 8
 
-  deploy-to-cloudhub-dev:
-    if: github.ref == 'refs/heads/develop'
-    needs: publish-to-exchange-dev
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml
+
+      - name: Rename artifact with Git commit hash
+        run: |
+		  artifactName1=$(ls target/*.jar | head -1)
+          commitHash=$(git rev-parse --short "$GITHUB_SHA")
+          artifactName2=$(ls target/*.jar | head -1 | sed "s/.jar/-$commitHash.jar/g")
+          mv $artifactName1 $artifactName2
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: mule-artifact
+          path: target/*.jar
+
+  deploy:
+    needs: build
     runs-on: ubuntu-latest
-    container:
-      image: maven:3.8.2-jdk-8
     steps:
-      - name: Checkout Code
+      - name: Checkout this repo
         uses: actions/checkout@v3
 
       - name: Cache Maven dependencies
@@ -58,71 +60,33 @@ jobs:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
 
-      - name: Deploy to CloudHub 2.0 (DEV)
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: artifacts
+
+      - name: Deploy to CloudHub 2.0 DEV
+        env:
+          CLIENT_ID: ${{ secrets.ANYPOINT_CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.ANYPOINT_CLIENT_SECRET }}
+          ENV: DEV
+          VCORES: ${{ secrets.SANDBOX_VCORES }}
+          TARGET: ${{ secrets.SANDBOX_TARGET }}
+          MULE_ENV: ${{ secrets.SANDBOX_ENV }}
+          REPLICAS: ${{ secrets.SANDBOX_REPLICAS }}
+          SECRET_KEY: ${{ secrets.SANDBOX_SECRET_KEY }}
         run: |
-          echo "Deploy To Cloudhub 2.0 Starts For Dev"
+          artifactName=$(ls *.jar | head -1)
+          echo "Deploying artifact: $artifactName"
           mvn deploy -e -s settings.xml $MAVEN_OPTS \
-            -DskipMunitTests -DmuleDeploy \
-            -Denvironment=${{ secrets.ENVIRONMENT_DEV }} \
-            -DvCores=${{ secrets.DEV_VCORES }} \
-            -Dtarget=${{ secrets.DEV_TARGET }} \
-            -Dmule.env=${{ secrets.ENV_DEV }} \
-            -Dreplicas=${{ secrets.DEV_REPLICAS }} \
-            -Danypoint.platform.client_id=${{ secrets.DEV_ANYPOINT_PLATFORM_CLIENT_ID }} \
-            -Danypoint.platform.client_secret=${{ secrets.DEV_ANYPOINT_PLATFORM_CLIENT_SECRET }} \
-            -Dmule.key=${{ secrets.DEV_SECRET_KEY }} \
-            -DskipTests
-
-  publish-to-exchange-prod:
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    container:
-      image: maven:3.8.2-jdk-8
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Cache Maven dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-
-      - name: Publish to Exchange (PROD)
-        run: |
-          echo "Publish To Exchange To Prod"
-          mvn clean deploy $MAVEN_OPTS -e -s settings.xml \
-            -Denvironment=${{ secrets.ENVIRONMENT_PROD }} -DskipTests
-
-  deploy-to-cloudhub-prod:
-    if: github.ref == 'refs/heads/main'
-    needs: publish-to-exchange-prod
-    runs-on: ubuntu-latest
-    container:
-      image: maven:3.8.2-jdk-8
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Cache Maven dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-
-      - name: Deploy to CloudHub 2.0 (PROD)
-        run: |
-          echo "Deploy To Cloudhub 2.0 Starts For Prod"
-          mvn deploy -e -s settings.xml $MAVEN_OPTS \
-            -DskipMunitTests -DmuleDeploy \
-            -Denvironment=${{ secrets.ENVIRONMENT_PROD }} \
-            -DvCores=${{ secrets.PROD_VCORES }} \
-            -Dtarget=${{ secrets.PROD_TARGET }} \
-            -Dmule.env=${{ secrets.ENV_PROD }} \
-            -Dreplicas=${{ secrets.PROD_REPLICAS }} \
-            -Danypoint.platform.client_id=${{ secrets.PROD_ANYPOINT_PLATFORM_CLIENT_ID }} \
-            -Danypoint.platform.client_secret=${{ secrets.PROD_ANYPOINT_PLATFORM_CLIENT_SECRET }} \
-            -Dmule.key=${{ secrets.PROD_SECRET_KEY }} \
+            -DmuleDeploy \
+            -Dmule.artifact="$artifactName" \
+            -Denvironment="$ENV" \
+            -DvCores="$VCORES" \
+            -Dtarget="$TARGET" \
+            -Dmule.env="$MULE_ENV" \
+            -Dreplicas="$REPLICAS" \
+            -Danypoint.platform.client_id="$CLIENT_ID" \
+            -Danypoint.platform.client_secret="$CLIENT_SECRET" \
+            -Dmule.key="$SECRET_KEY" \
             -DskipTests
