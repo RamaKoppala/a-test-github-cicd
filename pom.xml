@@ -34,10 +34,10 @@
 				<configuration>
 					<cloudhub2Deployment>
 						<provider>MC</provider>
-						<businessGroupId>prowess-software-64</businessGroupId>
-						<connectedAppClientId>d7de564b36aa4ed382ac529d8404bfc7</connectedAppClientId>
-						<connectedAppClientSecret>fb56b6A295F34C7292CF2701C5A8f7A8</connectedAppClientSecret>
-						<environment>DEV</environment>
+						<businessGroupId>${project.groupId}</businessGroupId>
+						<connectedAppClientId>${connectedAppClientId}</connectedAppClientId>
+						<connectedAppClientSecret>${connectedAppClientSecret}</connectedAppClientSecret>
+						<environment>dev</environment>
 						<target>CloudHub-2-US-East-2</target>
 						<muleVersion>4.9.0</muleVersion>
 						<applicationName>rama-test-github-api</applicationName>
@@ -50,10 +50,10 @@
 						<properties>
 							<!--<anypoint.platform.client_id>e64b5796a64745e48d513b71fc702899</anypoint.platform.client_id>
 							<anypoint.platform.client_secret>e51Aef90909c4C0c85D9897a16A6D2D9</anypoint.platform.client_secret> -->
-							<connectedAppClientId>d7de564b36aa4ed382ac529d8404bfc7</connectedAppClientId>
-						        <connectedAppClientSecret>fb56b6A295F34C7292CF2701C5A8f7A8</connectedAppClientSecret>
+							<connectedAppClientId>${connectedAppClientId}</connectedAppClientId>
+						        <connectedAppClientSecret>${connectedAppClientSecret}</connectedAppClientSecret>
 							
-							<mule.env>DEV</mule.env>
+							<mule.env>dev</mule.env>
 						</properties>
 						<secureProperties>
 							<mule.key>MuleSoft12345678</mule.key>
