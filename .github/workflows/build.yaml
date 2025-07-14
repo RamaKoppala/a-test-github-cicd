@@ -36,7 +36,7 @@ jobs:
 
       - name: Rename artifact with Git commit hash
         run: |
-		  artifactName1=$(ls target/*.jar | head -1)
+	  artifactName1=$(ls target/*.jar | head -1)
           commitHash=$(git rev-parse --short "$GITHUB_SHA")
           artifactName2=$(ls target/*.jar | head -1 | sed "s/.jar/-$commitHash.jar/g")
           mv $artifactName1 $artifactName2
@@ -70,11 +70,11 @@ jobs:
           CLIENT_ID: ${{ secrets.ANYPOINT_CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.ANYPOINT_CLIENT_SECRET }}
           ENV: DEV
-          VCORES: ${{ secrets.SANDBOX_VCORES }}
-          TARGET: ${{ secrets.SANDBOX_TARGET }}
-          MULE_ENV: ${{ secrets.SANDBOX_ENV }}
-          REPLICAS: ${{ secrets.SANDBOX_REPLICAS }}
-          SECRET_KEY: ${{ secrets.SANDBOX_SECRET_KEY }}
+          VCORES: 0.1
+          TARGET: ${{ secrets.DEV_TARGET }}
+          MULE_ENV: DEV
+          REPLICAS: 1
+          SECRET_KEY: ${{ secrets.DEV_SECRET_KEY }}
         run: |
           artifactName=$(ls *.jar | head -1)
           echo "Deploying artifact: $artifactName"
